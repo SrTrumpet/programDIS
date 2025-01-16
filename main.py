@@ -89,6 +89,7 @@ selectedSubTag.set("Seleccionar SubFiltro")
 subTagMenu = OptionMenu(root, selectedSubTag, *tagSubColumns, command=lambda _: updateFileList(selectedTag.get(), selectedSubTag.get()))
 subTagMenu.grid(row=3, column=0, padx=10, pady=10)
 
+
 #################################################################
 
 # Este codigo debe estar al final del script
