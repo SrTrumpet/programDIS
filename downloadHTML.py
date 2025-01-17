@@ -15,11 +15,11 @@ edge_options.add_experimental_option('prefs', {
     "download.directory_upgrade": True,
     "safebrowsing.enabled": True
 })
-webdriver_path = "D:/msedgedriver.exe"  # Cambia esto con la ruta al Edge WebDriver
+webdriver_path = "D:/msedgedriver.exe"
 driver = webdriver.Edge(service=Service(webdriver_path), options=edge_options)
 
 # Rutas de carpetas
-docx_directory = "C:/Users/Elias M. Olivares/Desktop/Script DIS"  # Cambia esto con la ruta a tu carpeta de archivos .docx
+docx_directory = "C:/Users/Elias M. Olivares/Desktop/Script DIS"
 output_directory = os.path.join(os.path.expanduser("~"), "Desktop", "html")
 if not os.path.exists(output_directory):
     os.makedirs(output_directory)
