@@ -117,7 +117,6 @@ def downloadFilesConverter():
 
 buttonDownload = Button(root, text="Descargar archivos", font=("Arial"), width=30, height=2, bg="green", fg="white", justify="center", command=downloadFilesConverter)
 buttonDownload.grid(row=0, column=3, padx=10, pady=10)
-
 #################################################################
 # Listbox para mostrar los archivos en la carpeta download
 
@@ -131,6 +130,38 @@ def updateDownloadList():
 
 # Actualizar la lista de archivos descargados al iniciar
 updateDownloadList()
+
+#################################################################
+# Treeview central para mostrar los archivos seleccionados
+
+selectedFilesTreeview = ttk.Treeview(root, columns=("source", "fileName"), show="headings", height=2)
+selectedFilesTreeview.heading("source", text="Fuente")
+selectedFilesTreeview.heading("fileName", text="Nombre del archivo")
+selectedFilesTreeview.column("source", width=100)
+selectedFilesTreeview.column("fileName", width=200)
+selectedFilesTreeview.grid(row=2, column=1, padx=10, pady=10, columnspan=2)
+
+def addToSelectedFiles(file_name, source):
+    if source == "left":
+        if selectedFilesTreeview.exists("left"):
+            selectedFilesTreeview.delete("left")
+        selectedFilesTreeview.insert("", "end", iid="left", values=(source, file_name))
+    elif source == "right":
+        if selectedFilesTreeview.exists("right"):
+            selectedFilesTreeview.delete("right")
+        selectedFilesTreeview.insert("", "end", iid="right", values=(source, file_name))
+
+def onFileTreeviewSelect(event):
+    selected_item = fileTreeview.selection()[0]
+    selectFile = fileTreeview.item(selected_item, "values")[0]
+    addToSelectedFiles(selectFile, "left")
+
+def onDownloadListboxSelect(event):
+    selected_file = downloadListbox.get(downloadListbox.curselection())
+    addToSelectedFiles(selected_file, "right")
+
+fileTreeview.bind("<<TreeviewSelect>>", onFileTreeviewSelect)
+downloadListbox.bind("<<ListboxSelect>>", onDownloadListboxSelect)
 #################################################################
 
 selectedTag = StringVar(root)
@@ -149,6 +180,11 @@ def openFile():
     selected_item = fileTreeview.selection()[0]
     selectFile = fileTreeview.item(selected_item, "values")[0]
     filePath = path.join(enterpriseDir, selectFile)
+    startfile(filePath)
+
+def openDownloadedFile():
+    selected_file = downloadListbox.get(downloadListbox.curselection())
+    filePath = path.join(downloadDir, selected_file)
     startfile(filePath)
 
 def assignNickname():
@@ -212,6 +248,15 @@ def showContextMenu(event):
     contextMenu.post(event.x_root, event.y_root)
 
 fileTreeview.bind("<Button-3>", showContextMenu)
+
+# Menu contextual para la Listbox de archivos descargados
+downloadContextMenu = Menu(root, tearoff=0)
+downloadContextMenu.add_command(label="Abrir archivo", command=openDownloadedFile)
+
+def showDownloadContextMenu(event):
+    downloadContextMenu.post(event.x_root, event.y_root)
+
+downloadListbox.bind("<Button-3>", showDownloadContextMenu)
 #################################################################
 # Este codigo debe estar al final del script
 #RUTAS
