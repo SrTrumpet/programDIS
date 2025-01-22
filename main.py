@@ -16,6 +16,7 @@ directoryOriginal = ""  # Directorio donde se van a sacar los nombres de los arc
 messageError = None
 messageSuccess = None
 textPathWork = None
+textPathOriginal = None
 tagColumns = ("Seleccionar Filtro", "Administrar plataformas TI", "Entregar soporte a usuarios", "Gestion de outsourcing")  # Tupla usada para luego usarlas de Tag en la base de datos
 tagSubColumns = ("Seleccionar SubFiltro", "Implementar Servicios", "Monitoreo de servicios", "Respaldo de servicios", "Planes de contingencia", "Mantenciones", "a sus cuentas", "a sus equipos", "a plataformas", "a eventos")
 originalDir = path.join(getcwd(), "original")
@@ -25,15 +26,17 @@ downloadDir = path.join(getcwd(), "download")
 #################################################################
 
 def getPath():
-    global directoryEnterprise, messageError
+    global directoryEnterprise, messageError, textPathOriginal
     directory = filedialog.askdirectory()
     directoryEnterprise = directory
     filePath = open("pathEnterprise.txt", "w")
     filePath.write("")
     filePath.write(directory)
     if directory:
-        label1 = Label(root, text=directory, font=("Arial", 12), bg="white")
-        label1.grid(row=0, column=1, padx=10, pady=10)
+        if textPathOriginal:
+            textPathOriginal.destroy()
+        textPathOriginal = Label(root, text=directory, font=("Arial", 12), bg="white")
+        textPathOriginal.grid(row=1, column=0, padx=10, pady=10)
         if messageError:
             messageError.destroy()
             messageError = None
@@ -47,7 +50,7 @@ def saveReferences():
     if directoryEnterprise == "":
         if not messageError:
             messageError = Label(root, text="Debe seleccionar un directorio", font=("Arial", 12), bg="white", fg="red")
-            messageError.grid(row=0, column=3, padx=10, pady=10)
+            messageError.grid(row=1, column=1, padx=10, pady=10)
     else:
         for fileName in listdir(directoryEnterprise):
             if fileName.endswith(".htm"):
@@ -110,10 +113,24 @@ buttonPathWork.grid(row=0, column=2, padx=10, pady=10)
 
 def downloadFilesConverter():
     DownloadHTML.downloadHtml(directoryWork)
+    updateDownloadList()
 
 buttonDownload = Button(root, text="Descargar archivos", font=("Arial"), width=30, height=2, bg="green", fg="white", justify="center", command=downloadFilesConverter)
 buttonDownload.grid(row=0, column=3, padx=10, pady=10)
 
+#################################################################
+# Listbox para mostrar los archivos en la carpeta download
+
+downloadListbox = Listbox(root, width=30, height=24, font=("Arial", 12))
+downloadListbox.grid(row=2, column=3, padx=10, pady=10,columnspan=1)
+
+def updateDownloadList():
+    downloadListbox.delete(0, END)
+    for file_name in listdir(downloadDir):
+        downloadListbox.insert(END, file_name)
+
+# Actualizar la lista de archivos descargados al iniciar
+updateDownloadList()
 #################################################################
 
 selectedTag = StringVar(root)
@@ -235,8 +252,8 @@ finally:
     filePathWork.close()
 
 if directoryEnterprise:
-    label1 = Label(root, text=directoryEnterprise, font=("Arial", 12), bg="white")
-    label1.grid(row=1, column=0, padx=10, pady=10)
+    textPathOriginal = Label(root, text=directoryEnterprise, font=("Arial", 12), bg="white")
+    textPathOriginal.grid(row=1, column=0, padx=10, pady=10)
 
 if directoryWork:
     textPathWork = Label(root, text=directoryWork, font=("Arial", 12), bg="white")
