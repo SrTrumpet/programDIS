@@ -1,6 +1,8 @@
 from tkinter import *
+import time
 from tkinter import filedialog, simpledialog, messagebox, ttk
 from os import path, listdir, makedirs, getcwd, startfile
+import os
 import shutil
 import sqlite3
 from downloadHTML import DownloadHTML
@@ -162,6 +164,60 @@ def onDownloadListboxSelect(event):
 
 fileTreeview.bind("<<TreeviewSelect>>", onFileTreeviewSelect)
 downloadListbox.bind("<<ListboxSelect>>", onDownloadListboxSelect)
+
+
+#################################################################
+#Funcion para combinar archivos
+# Función para combinar archivos
+# Función para combinar archivos
+def combineFiles():
+    try:
+        # Obtener los valores seleccionados en el Treeview
+        left_item = selectedFilesTreeview.item("left", "values")
+        right_item = selectedFilesTreeview.item("right", "values")
+
+        # Validar que ambos archivos están seleccionados
+        if not left_item or not right_item:
+            raise ValueError("Ambos archivos deben estar seleccionados.")
+
+        left_file = left_item[1]  # Nombre que reemplazará al archivo copiado
+        right_file = right_item[1]  # Archivo que será copiado
+
+        # Construir rutas completas
+        original_file_path = path.join(downloadDir, right_file)  # Archivo de origen
+        renamed_file_path = path.join(originalDir, left_file)  # Nuevo nombre del archivo
+
+        # Verificar si el archivo de origen existe
+        if not path.exists(original_file_path):
+            raise FileNotFoundError(f"El archivo '{right_file}' no existe en la carpeta de descargas.")
+
+        # Si el archivo destino ya existe, eliminarlo
+        if path.exists(renamed_file_path):
+            os.remove(renamed_file_path)
+
+        # Copiar el archivo desde downloadDir a originalDir y renombrarlo
+        shutil.copy(original_file_path, renamed_file_path)
+
+        # Mostrar mensaje de éxito
+        messagebox.showinfo("Éxito", f"Archivo '{right_file}' copiado y reemplazado como '{left_file}' en la carpeta original.")
+    except ValueError as ve:
+        messagebox.showerror("Error", str(ve))
+    except KeyError:
+        messagebox.showerror("Error", "Debe seleccionar un archivo de cada tabla.")
+    except FileNotFoundError as fnf_error:
+        messagebox.showerror("Error", str(fnf_error))
+    except Exception as e:
+        messagebox.showerror("Error", f"Ocurrió un error inesperado: {str(e)}")
+
+#################################################################
+#Botones para guardar las referencias en la carpeta @original y luego el segundo boton es para reemplazar los documentos del
+#path de donde esta el proyecto original
+
+combineButton = Button(root, text="Combinar archivos", font=("Arial"), width=18, height=1, bg="green", fg="white", justify="center", command=combineFiles)
+combineButton.place(x=600, y=450)
+
+replaceButton = Button(root, text="Reemplazar archivos", font=("Arial"), width=18, height=1, bg="blue", fg="white", justify="center")
+replaceButton.place(x=600, y=500)
 #################################################################
 
 selectedTag = StringVar(root)
