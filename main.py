@@ -10,8 +10,9 @@ from downloadHTML import DownloadHTML
 ################## CONFIGURACIONES INICIALES ##################
 root = Tk()
 root.title("DIS Coquimbo - Gestor de documentacion")  # Titulo de la ventana
-root.geometry("1280x720")  # Tamaño de la ventana
+root.geometry("1230x720")  # Tamaño de la ventana
 root.iconbitmap(default="./img/ucnLogo.ico")  # Icono de la ventana
+root.config(bg="#323232")
 directoryEnterprise = ""  # Directorio donde se van a sacar los nombres de los archivos generados por el Enterprise Architech
 directoryWork = ""  # Directorio donde se van a sacar los nombres de los archivos generados por el trabajo
 directoryOriginal = ""  # Directorio donde se van a sacar los nombres de los archivos originales
@@ -131,6 +132,9 @@ def updateDownloadList():
         downloadListbox.insert(END, file_name)
 
 # Actualizar la lista de archivos descargados al iniciar
+if not path.exists(downloadDir):
+    makedirs(downloadDir)
+
 updateDownloadList()
 
 #################################################################
@@ -214,10 +218,39 @@ def combineFiles():
 #path de donde esta el proyecto original
 
 combineButton = Button(root, text="Combinar archivos", font=("Arial"), width=18, height=1, bg="green", fg="white", justify="center", command=combineFiles)
-combineButton.place(x=600, y=450)
+combineButton.place(x=525, y=450)
 
-replaceButton = Button(root, text="Reemplazar archivos", font=("Arial"), width=18, height=1, bg="blue", fg="white", justify="center")
-replaceButton.place(x=600, y=500)
+def replaceFiles():
+    try:
+        # Copiar y reemplazar archivos de @original a @enterprise
+        for file_name in listdir(originalDir):
+            original_file_path = path.join(originalDir, file_name)
+            enterprise_file_path = path.join(enterpriseDir, file_name)
+            user_defined_path = path.join(directoryEnterprise, file_name)
+            
+            # Copiar a @enterprise
+            shutil.copy(original_file_path, enterprise_file_path)
+            
+            # Copiar a la carpeta definida por el usuario
+            shutil.copy(original_file_path, user_defined_path)
+        
+        # Borrar archivos en @original
+        for file_name in listdir(originalDir):
+            os.remove(path.join(originalDir, file_name))
+        
+        # Borrar archivos en @download
+        for file_name in listdir(downloadDir):
+            os.remove(path.join(downloadDir, file_name))
+        
+        updateDownloadList()
+
+        messagebox.showinfo("Éxito", "Archivos reemplazados y copiados correctamente.")
+    except Exception as e:
+        messagebox.showerror("Error", f"Ocurrió un error: {str(e)}")
+
+
+replaceButton = Button(root, text="Reemplazar archivos", font=("Arial"), width=18, height=1, bg="blue", fg="white", justify="center", command=replaceFiles)
+replaceButton.place(x=525, y=500)
 #################################################################
 
 selectedTag = StringVar(root)
@@ -369,8 +402,7 @@ if not path.exists(databaseDir):
 if not path.exists(originalDir):
     makedirs(originalDir)
 
-if not path.exists(downloadDir):
-    makedirs(downloadDir)
+
 
 #BASE DE DATOS
 connectionDataBase = sqlite3.connect("./database/database.db")
